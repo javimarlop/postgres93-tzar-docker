@@ -39,6 +39,7 @@ ENV PGDATA /var/lib/postgresql/data
 VOLUME /var/lib/postgresql/data
 
 COPY ./docker-entrypoint.sh /
+COPY ./create_db_node.sh /docker-entrypoint-initdb.d/create_db_node.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
