@@ -1,43 +1,54 @@
-FROM ubuntu
+# vim:set ft=dockerfile:
+FROM debian:wheezy
 
-# Basics
-RUN echo "deb http://archive.ubuntu.com/ubuntu precise main universe" > /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get -y upgrade
+# add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+RUN groupadd -r postgres && useradd -r -g postgres postgres
 
-RUN apt-get -y install python-software-properties wget
-RUN apt-get -y install software-properties-common
+# grab gosu for easy step-down from root
+RUN apt-get update && apt-get install -y curl wget && rm -rf /var/lib/apt/lists/* \
+	&& curl -o /usr/local/bin/gosu -SL 'https://github.com/tianon/gosu/releases/download/1.1/gosu' \
+	&& chmod +x /usr/local/bin/gosu \
+	&& apt-get purge -y --auto-remove curl
 
-#RUN add-apt-repository ppa:pitti/postgresql
-RUN apt-get -y update
+# make the "en_US.UTF-8" locale so postgres will be utf-8 enabled by default
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+	&& localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG en_US.utf8
 
-#ENV PG_VERSION 9.1
-#ENV LOCALE     en_US
-#ENV LANGUAGE   en_US.UTF-8
-#ENV LANG       en_US.UTF-8
-#ENV LC_ALL     en_US.UTF-8
+RUN mkdir /docker-entrypoint-initdb.d
 
-# Locales
-#RUN apt-get -y install language-pack-en
-#RUN locale-gen en_US.UTF-8
-#RUN dpkg-reconfigure locales
+RUN apt-key adv --keyserver pgp.mit.edu --recv-keys B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8
 
-RUN apt-get -y install postgresql-* postgresql-client-* postgresql-contrib-*
+ENV PG_MAJOR 9.1
+ENV PG_VERSION 9.1.14-1.pgdg70+1
 
-RUN mkdir /tmp
+RUN echo 'deb http://apt.postgresql.org/pub/repos/apt/ wheezy-pgdg main' $PG_MAJOR > /etc/apt/sources.list.d/pgdg.list
+
+RUN apt-get update \
+	&& apt-get install -y postgresql-common \
+	&& sed -ri 's/#(create_main_cluster) .*$/\1 = false/' /etc/postgresql-common/createcluster.conf \
+	&& apt-get install -y \
+		postgresql-$PG_MAJOR=$PG_VERSION \
+		postgresql-contrib-$PG_MAJOR=$PG_VERSION \
+	&& rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /var/run/postgresql && chown -R postgres /var/run/postgresql
+
+ENV PATH /usr/lib/postgresql/$PG_MAJOR/bin:$PATH
+ENV PGDATA /var/lib/postgresql/data
+VOLUME /var/lib/postgresql/data
 
 RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
-
-# Important! trust means that users with no password can connect.
-# On a production environment, you can either set a password for the user or
-# Have postgres only be accessible locally.
-RUN echo "host    all             all             0.0.0.0/0               trust" >> /etc/postgresql/$PG_VERSION/main/pg_hba.conf
-RUN echo "listen_addresses='*'" >> /etc/postgresql/$PG_VERSION/main/postgresql.conf
-
 RUN service postgresql start && \
   su postgres sh -c "createuser -d -r -s tzar" && \
   su postgres sh -c "createdb -O tzar tzar" && \
   su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" && \
   su postgres sh -c "psql -f /tmp/db_schema.sql tzar -U tzar;\""
+
+COPY ./docker-entrypoint.sh /
+#COPY ./create_db_node.sh /docker-entrypoint-initdb.d/create_db_node.sh
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
 EXPOSE 5432
-CMD ["su", "postgres", "-c", "/usr/lib/postgresql/$PG_VERSION/bin/postgres -D /var/lib/postgresql/$PG_VERSION/main/ -c config_file=/etc/postgresql/$PG_VERSION/main/postgresql.conf"]
+CMD ["postgres"]
