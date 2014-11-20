@@ -38,7 +38,9 @@ ENV PATH /usr/lib/postgresql/$PG_MAJOR/bin:$PATH
 ENV PGDATA /var/lib/postgresql/data
 VOLUME /var/lib/postgresql/data
 
-RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
+COPY ./db_schema.sql /tmp/db_schema.sql
+
+#RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
 RUN service postgresql start && \
   su postgres sh -c "createuser -d -r -s tzar" && \
   su postgres sh -c "createdb -O tzar tzar" && \
@@ -46,7 +48,6 @@ RUN service postgresql start && \
   su postgres sh -c "psql -f /tmp/db_schema.sql tzar -U tzar;\""
 
 COPY ./docker-entrypoint.sh /
-#COPY ./create_db_node.sh /docker-entrypoint-initdb.d/create_db_node.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
