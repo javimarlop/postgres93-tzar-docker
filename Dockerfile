@@ -11,7 +11,7 @@ RUN apt-get -y install software-properties-common
 #RUN add-apt-repository ppa:pitti/postgresql
 RUN apt-get -y update
 
-#ENV PG_VERSION 9.2
+ENV PG_VERSION 9.1
 #ENV LOCALE     en_US
 #ENV LANGUAGE   en_US.UTF-8
 #ENV LANG       en_US.UTF-8
@@ -23,6 +23,8 @@ RUN apt-get -y update
 #RUN dpkg-reconfigure locales
 
 RUN apt-get -y install postgresql-$PG_VERSION postgresql-client-$PG_VERSION postgresql-contrib-$PG_VERSION
+
+RUN mkdir /tmp
 
 RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
 
