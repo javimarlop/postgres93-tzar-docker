@@ -40,14 +40,15 @@ VOLUME /var/lib/postgresql/data
 
 COPY ./db_schema.sql /tmp/db_schema.sql
 
-#RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
-RUN service postgresql start && \
-  su postgres sh -c "createuser -d -r -s tzar" && \
-  su postgres sh -c "createdb -O tzar tzar" && \
-  su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" && \
-  su postgres sh -c "psql -f /tmp/db_schema.sql tzar -U tzar;\""
+##RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/db_schema.sql -O /tmp/db_schema.sql
+#RUN service postgresql start && \
+#  su postgres sh -c "createuser -d -r -s tzar" && \
+#  su postgres sh -c "createdb -O tzar tzar" && \
+#  su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" && \
+#  su postgres sh -c "psql -f /tmp/db_schema.sql tzar -U tzar;\""
 
 COPY ./docker-entrypoint.sh /
+COPY ./setupdb.sh /docker-entrypoint-initdb.d/setupdb.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
