@@ -8,7 +8,7 @@ RUN apt-get -y upgrade
 RUN apt-get -y install python-software-properties wget
 RUN apt-get -y install software-properties-common
 
-RUN add-apt-repository ppa:pitti/postgresql
+#RUN add-apt-repository ppa:pitti/postgresql
 RUN apt-get -y update
 
 ENV PG_VERSION 9.2
