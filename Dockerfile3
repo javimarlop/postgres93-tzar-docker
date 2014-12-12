@@ -1,0 +1,23 @@
+FROM postgres:9.1
+
+#COPY ./db_schema.sql /tmp/db_schema.sql
+
+#RUN wget https://tzar-framework.googlecode.com/svn/trunk/db/#db_schema.sql -O /tmp/db_schema.sql
+
+
+COPY ./docker-entrypoint.sh /
+#COPY ./setupdb.sh /docker-entrypoint-initdb.d/setupdb.sh
+
+ADD setup-my-schema.sh /docker-entrypoint-initdb.d/
+
+ENTRYPOINT ["/docker-entrypoint.sh"]
+
+EXPOSE 5432
+CMD ["postgres"]
+
+RUN service postgresql start && \
+  su postgres sh -c "createuser -d -r -s tzar" && \
+  su postgres sh -c "createdb -O tzar tzar" && \
+  su postgres sh -c "psql -c \"GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" && \
+  su postgres sh -c "psql -f /tmp/db_schema.sql tzar -U tzar;\""
+  su postgres sh -c "pg_ctl -D /var/lib/postgresql/data -l logfile start"
