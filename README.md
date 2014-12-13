@@ -1,10 +1,10 @@
 postgres93-tzar-docker
 ======================
 
-It is a postgres 9.3 database server and [app](https://github.com/javimarlop/ocpu-radarplot-sochi) configured as a [tzar](https://tzar-framework.atlassian.net/wiki/display/TD/Tzar+documentation) database and installed on a Docker machine. [Docker](https://www.docker.com/) needs to be installed in your OS.
+It is a postgres 9.3 server configured as a [tzar](https://tzar-framework.atlassian.net/wiki/display/TD/Tzar+documentation) database and installed on a Docker machine. [Docker](https://www.docker.com/) needs to be installed in your OS.
 
-* Run `docker pull javimarlop/postgres93-tzar-docker`
-* The run:
+* First download the docker machine `docker pull javimarlop/postgres93-tzar-docker`
+* Then run:
 
 ```
 docker run -dP --name pg javimarlop/postgres93-tzar-docker
