@@ -28,7 +28,7 @@ RUN    /etc/init.d/postgresql start &&\
     createdb -O docker docker
 
 ## tzar
-#COPY ./db_schema.sql /tmp/db_schema.sql
+COPY ./db_schema.sql /tmp/db_schema.sql
 ## tzar
 
 # Adjust PostgreSQL configuration so that remote connections to the
