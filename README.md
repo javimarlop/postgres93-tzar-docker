@@ -14,8 +14,12 @@ psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "create database tzar
 psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" # password: docker
 psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password -f db_schema.sql # password: tzar
 # psql:db_schema.sql:344: ERROR:  must be member of role "postgres"
-# connect!
+
+# connect to test it:
 psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password # password: tzar
+
+# schedule some jobs using the repo of your choice:
+java -jar tzar.jar scheduleruns https://github.com/javimarlop/eHabpy/trunk/ --runset=ehabpy_test --numruns=10 --dburl=jdbc:postgresql://<URL OF YOUR DB>:49153/<NAME OF DB>?user=tzar^&password=tzar
 ```
 
 More info on how to connect to the DB from the host or from another container [here](http://docs.docker.com/examples/postgresql_service/).
