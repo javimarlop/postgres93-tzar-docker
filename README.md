@@ -8,13 +8,14 @@ It is a postgres 9.3 server configured as a [tzar](https://tzar-framework.atlass
 
 ```
 docker run -dP --name pg javimarlop/postgres93-tzar-docker
-psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "create user tzar with password 'tzar'"
-psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "create database tzar"
-psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "GRANT ALL PRIVILEGES ON DATABASE tzar to tzar"
-psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password -f db_schema.sql
+docker ps -a # to check which port is using the docker container and change it accordingly
+psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "create user tzar with password 'tzar'" # password: docker
+psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "create database tzar" # password: docker
+psql -h 0.0.0.0 -p 49153 -d docker -U docker --password -c "GRANT ALL PRIVILEGES ON DATABASE tzar to tzar" # password: docker
+psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password -f db_schema.sql # password: tzar
 # psql:db_schema.sql:344: ERROR:  must be member of role "postgres"
 # connect!
-psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password
+psql -h 0.0.0.0 -p 49153 -d tzar -U tzar --password # password: tzar
 ```
 
 More info on how to connect to the DB from the host or from another container [here](http://docs.docker.com/examples/postgresql_service/).
